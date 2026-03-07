@@ -1,0 +1,162 @@
+import { TeacherProfile, Booking, Message, User } from '../types';
+
+export const mockUsers: User[] = [
+  {
+    id: 'l1',
+    name: 'Kazuma Imai',
+    email: 'kazumaimai0@gmail.com',
+    role: 'learner',
+    created_at: '2026-01-01T00:00:00',
+  },
+  {
+    id: 'l2',
+    name: 'Takumi Nittono',
+    email: 'nittonotakumi@gmail.com',
+    role: 'learner',
+    created_at: '2026-01-01T00:00:00',
+  },
+];
+
+export const mockCredentials: { email: string; password: string; userId: string }[] = [
+  { email: 'kazumaimai0@gmail.com', password: '0809kazuma', userId: 'l1' },
+  { email: 'nittonotakumi@gmail.com', password: 'Takumi1030', userId: 'l2' },
+];
+
+export const mockTeachers: TeacherProfile[] = [
+  {
+    user_id: 't1',
+    name: 'Yuki Tanaka',
+    bio: 'Native Japanese speaker with 10 years of teaching experience. Specializing in conversational Japanese and JLPT preparation.',
+    subject: 'Japanese',
+    price_per_hour: 3000,
+    language: 'Japanese / English',
+    rating: 4.8,
+    availability: ['Mon 10:00-18:00', 'Wed 10:00-18:00', 'Fri 10:00-18:00'],
+    avatar: '',
+  },
+  {
+    user_id: 't2',
+    name: 'Sarah Johnson',
+    bio: 'Certified English teacher (TESOL). Fun and interactive lessons for all levels.',
+    subject: 'English',
+    price_per_hour: 2500,
+    language: 'English',
+    rating: 4.6,
+    availability: ['Tue 09:00-17:00', 'Thu 09:00-17:00', 'Sat 10:00-14:00'],
+    avatar: '',
+  },
+  {
+    user_id: 't3',
+    name: 'Kenji Yamamoto',
+    bio: 'Mathematics tutor specializing in high school and university level math. Patient and thorough explanations.',
+    subject: 'Mathematics',
+    price_per_hour: 3500,
+    language: 'Japanese',
+    rating: 4.9,
+    availability: ['Mon-Fri 18:00-22:00', 'Sat 10:00-20:00'],
+    avatar: '',
+  },
+  {
+    user_id: 't4',
+    name: 'Maria Garcia',
+    bio: 'Native Spanish speaker from Madrid. Beginner to advanced levels welcome!',
+    subject: 'Spanish',
+    price_per_hour: 2800,
+    language: 'Spanish / English',
+    rating: 4.7,
+    availability: ['Mon 14:00-20:00', 'Wed 14:00-20:00', 'Fri 14:00-20:00'],
+    avatar: '',
+  },
+  {
+    user_id: 't5',
+    name: 'Takeshi Sato',
+    bio: 'Professional piano teacher with 15 years of experience. From beginners to advanced performers.',
+    subject: 'Piano',
+    price_per_hour: 4000,
+    language: 'Japanese / English',
+    rating: 4.5,
+    availability: ['Tue 10:00-20:00', 'Thu 10:00-20:00'],
+    avatar: '',
+  },
+  {
+    user_id: 't6',
+    name: 'Emily Chen',
+    bio: 'Programming instructor specializing in Python, JavaScript, and React. Build real projects!',
+    subject: 'Programming',
+    price_per_hour: 4500,
+    language: 'English / Chinese',
+    rating: 4.9,
+    availability: ['Mon-Fri 10:00-18:00'],
+    avatar: '',
+  },
+];
+
+export const mockBookings: Booking[] = [
+  {
+    id: 'b1',
+    learner_id: 'l1',
+    teacher_id: 't1',
+    teacher_name: 'Yuki Tanaka',
+    learner_name: 'Kazuma Imai',
+    subject: 'Japanese',
+    scheduled_time: '2026-03-10T14:00:00',
+    status: 'accepted',
+  },
+  {
+    id: 'b2',
+    learner_id: 'l1',
+    teacher_id: 't3',
+    teacher_name: 'Kenji Yamamoto',
+    learner_name: 'Kazuma Imai',
+    subject: 'Mathematics',
+    scheduled_time: '2026-03-12T18:00:00',
+    status: 'pending',
+  },
+  {
+    id: 'b3',
+    learner_id: 'l2',
+    teacher_id: 't1',
+    teacher_name: 'Yuki Tanaka',
+    learner_name: 'Jane Smith',
+    subject: 'Japanese',
+    scheduled_time: '2026-03-11T10:00:00',
+    status: 'pending',
+  },
+  {
+    id: 'b4',
+    learner_id: 'l1',
+    teacher_id: 't6',
+    teacher_name: 'Emily Chen',
+    learner_name: 'Kazuma Imai',
+    subject: 'Programming',
+    scheduled_time: '2026-03-08T15:00:00',
+    status: 'completed',
+  },
+];
+
+export const mockMessages: Message[] = [
+  {
+    id: 'm1',
+    chat_room_id: 'b1',
+    sender_id: 'l1',
+    sender_name: 'Kazuma Imai',
+    message: 'Hello! Looking forward to our lesson!',
+    created_at: '2026-03-06T10:00:00',
+  },
+  {
+    id: 'm2',
+    chat_room_id: 'b1',
+    sender_id: 't1',
+    sender_name: 'Yuki Tanaka',
+    message: 'Hi John! Me too. Please prepare chapter 5 of the textbook.',
+    created_at: '2026-03-06T10:05:00',
+  },
+  {
+    id: 'm3',
+    chat_room_id: 'b1',
+    sender_id: 'l1',
+    sender_name: 'Kazuma Imai',
+    message: 'Got it! See you then!',
+    created_at: '2026-03-06T10:10:00',
+  },
+];
