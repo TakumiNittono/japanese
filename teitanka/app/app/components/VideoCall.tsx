@@ -6,6 +6,7 @@ import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 interface VideoCallProps {
   roomId: string;
   userName: string;
+  initialRoomUrl?: string;
 }
 
 interface Participant {
@@ -66,14 +67,14 @@ function VideoTile({ participant, updateKey }: { participant: Participant; updat
   );
 }
 
-export default function VideoCall({ roomId, userName }: VideoCallProps) {
+export default function VideoCall({ roomId, userName, initialRoomUrl }: VideoCallProps) {
   const [callState, setCallState] = useState<'idle' | 'joining' | 'joined' | 'error'>('idle');
   const [participants, setParticipants] = useState<Record<string, Participant>>({});
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCamOn, setIsCamOn] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [roomUrl, setRoomUrl] = useState('');
+  const [roomUrl, setRoomUrl] = useState(initialRoomUrl || '');
   const [updateKey, setUpdateKey] = useState(0);
   const callRef = useRef<DailyCall | null>(null);
 
