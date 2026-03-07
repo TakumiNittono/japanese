@@ -15,39 +15,38 @@ interface Participant {
   video: boolean;
   audio: boolean;
   tracks: {
-    video: { persistentTrack?: MediaStreamTrack; state: string };
-    audio: { persistentTrack?: MediaStreamTrack; state: string };
+    video: { persistentTrack?: MediaStreamTrack; track?: MediaStreamTrack; state: string };
+    audio: { persistentTrack?: MediaStreamTrack; track?: MediaStreamTrack; state: string };
+    screenVideo?: { persistentTrack?: MediaStreamTrack; track?: MediaStreamTrack; state: string };
   };
 }
 
-function VideoTile({ participant }: { participant: Participant }) {
+function VideoTile({ participant, updateKey }: { participant: Participant; updateKey: number }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hasVideo = participant.tracks?.video?.state === 'playable';
 
   useEffect(() => {
-    const track = participant.tracks?.video?.persistentTrack;
-    if (videoRef.current && track) {
-      videoRef.current.srcObject = new MediaStream([track]);
+    if (!videoRef.current) return;
+    const track = participant.tracks?.video?.persistentTrack || participant.tracks?.video?.track;
+    if (track && hasVideo) {
+      const stream = new MediaStream([track]);
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(() => {});
+    } else {
+      videoRef.current.srcObject = null;
     }
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
-    };
-  }, [participant.tracks?.video?.persistentTrack]);
-
-  const hasVideo = participant.tracks?.video?.state === 'playable';
+  }, [participant.tracks?.video?.persistentTrack, participant.tracks?.video?.track, hasVideo, updateKey]);
 
   return (
     <div className="relative bg-gray-800 rounded-lg overflow-hidden aspect-video">
-      {hasVideo ? (
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted={participant.local}
-          className="w-full h-full object-cover"
-        />
-      ) : (
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted={participant.local}
+        className={`w-full h-full object-cover ${hasVideo ? '' : 'hidden'}`}
+      />
+      {!hasVideo && (
         <div className="w-full h-full flex items-center justify-center">
           <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
             {(participant.user_name || 'U').charAt(0).toUpperCase()}
@@ -57,8 +56,9 @@ function VideoTile({ participant }: { participant: Participant }) {
       <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/60 text-white text-xs px-2 py-1 rounded-md">
         <span>{participant.local ? 'You' : participant.user_name || 'Guest'}</span>
         {participant.tracks?.audio?.state !== 'playable' && (
-          <svg className="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M1.5 4.5l21 15m-21 0l21-15M12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+          <svg className="w-3 h-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
           </svg>
         )}
       </div>
@@ -74,11 +74,17 @@ export default function VideoCall({ roomId, userName }: VideoCallProps) {
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [roomUrl, setRoomUrl] = useState('');
+  const [updateKey, setUpdateKey] = useState(0);
   const callRef = useRef<DailyCall | null>(null);
 
   const updateParticipants = useCallback((callObject: DailyCall) => {
     const p = callObject.participants();
-    setParticipants({ ...p } as unknown as Record<string, Participant>);
+    const mapped: Record<string, Participant> = {};
+    for (const [key, val] of Object.entries(p)) {
+      mapped[key] = { ...val } as unknown as Participant;
+    }
+    setParticipants(mapped);
+    setUpdateKey((k) => k + 1);
   }, []);
 
   const createRoom = async (): Promise<string> => {
@@ -118,6 +124,8 @@ export default function VideoCall({ roomId, userName }: VideoCallProps) {
       callObject.on('participant-joined', () => updateParticipants(callObject));
       callObject.on('participant-updated', () => updateParticipants(callObject));
       callObject.on('participant-left', () => updateParticipants(callObject));
+      callObject.on('track-started', () => updateParticipants(callObject));
+      callObject.on('track-stopped', () => updateParticipants(callObject));
       callObject.on('error', (e) => {
         setErrorMsg(e?.errorMsg || 'Call error');
         setCallState('error');
@@ -246,7 +254,7 @@ export default function VideoCall({ roomId, userName }: VideoCallProps) {
           }`}
         >
           {participantList.map((p) => (
-            <VideoTile key={p.session_id} participant={p} />
+            <VideoTile key={p.session_id} participant={p} updateKey={updateKey} />
           ))}
         </div>
       </div>
