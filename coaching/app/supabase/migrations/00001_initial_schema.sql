@@ -1,7 +1,7 @@
 -- =============================================
 -- Language Lesson Platform - コーチング機能テーブル追加
 --
--- 対象Supabase: kazz-pwa (qinfmdivvxtfygnexjoo.supabase.co)
+-- 対象Supabase: (uqxtqgtjmsezkawamhuz.supabase.co)
 -- 既存テーブル (profiles, notifications, user_notifications) には一切触れない
 -- =============================================
 
@@ -273,7 +273,11 @@ CREATE POLICY "Coaching users can update own profile"
 
 CREATE POLICY "Coaching admins can view all users"
   ON coaching_users FOR SELECT
-  USING (EXISTS (SELECT 1 FROM coaching_users WHERE id = auth.uid() AND role = 'admin'));
+  USING (
+    auth.uid() = id
+    OR
+    (SELECT raw_user_meta_data->>'role' FROM auth.users WHERE id = auth.uid()) = 'admin'
+  );
 
 -- teacher_profiles
 CREATE POLICY "Anyone can view approved teachers"
@@ -290,11 +294,15 @@ CREATE POLICY "Teachers can update own profile"
 
 CREATE POLICY "Admins can view all teachers"
   ON teacher_profiles FOR SELECT
-  USING (EXISTS (SELECT 1 FROM coaching_users WHERE id = auth.uid() AND role = 'admin'));
+  USING (
+    (SELECT raw_user_meta_data->>'role' FROM auth.users WHERE id = auth.uid()) = 'admin'
+  );
 
 CREATE POLICY "Admins can update teachers"
   ON teacher_profiles FOR UPDATE
-  USING (EXISTS (SELECT 1 FROM coaching_users WHERE id = auth.uid() AND role = 'admin'));
+  USING (
+    (SELECT raw_user_meta_data->>'role' FROM auth.users WHERE id = auth.uid()) = 'admin'
+  );
 
 -- teacher_schedules
 CREATE POLICY "Anyone can view schedules"
@@ -318,7 +326,9 @@ CREATE POLICY "Participants can update lessons"
 
 CREATE POLICY "Admins can manage all lessons"
   ON lessons FOR ALL
-  USING (EXISTS (SELECT 1 FROM coaching_users WHERE id = auth.uid() AND role = 'admin'));
+  USING (
+    (SELECT raw_user_meta_data->>'role' FROM auth.users WHERE id = auth.uid()) = 'admin'
+  );
 
 -- reviews
 CREATE POLICY "Anyone can view reviews"
